@@ -1475,20 +1475,24 @@ function updatePlayerName(player, val) {
 
         const isSeries = mode !== 'Vrij Spel';
 
-        // --- NIEUWE LOGICA VOOR COMPETITIE WEERGAVE ---
+       // --- NIEUWE LOGICA VOOR COMPETITIE WEERGAVE ---
       let modeDisplay = '';
       if (mode === 'Competitie') {
         // Controleer of iemand 5 punten heeft gehaald in de overkoepelende serie
         const seriesWon = m.p1Series >= 5 || m.p2Series >= 5;
         
         if (seriesWon) {
-          // Wel 5 punten: Met icoon, ZONDER extra stip aan het einde
+          // Wel 5 punten: Met icoon
           modeDisplay = `<span class="text-[11px] font-semibold text-primary uppercase tracking-wider">🏆 Competitie</span>`;
         } else {
-          // Geen 5 punten: Alleen tekst, ZONDER extra stip aan het einde
+          // Geen 5 punten: Alleen tekst
           modeDisplay = `<span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Competitie</span>`;
         }
+      } else if (mode === 'Vrij Spel') {
+        // Vrij spel: Alleen tekst
+        modeDisplay = `<span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Vrij Spel</span>`;
       }
+      // ----------------------------------------------
       // ----------------------------------------------
       // ----------------------------------------------
 
