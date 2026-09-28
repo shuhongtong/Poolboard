@@ -1475,11 +1475,30 @@ function updatePlayerName(player, val) {
 
         const isSeries = mode !== 'Vrij Spel';
 
+        // --- NIEUWE LOGICA VOOR COMPETITIE WEERGAVE ---
+      let modeDisplay = '';
+      if (mode === 'Competitie') {
+        // Controleer of iemand 5 punten heeft gehaald in de overkoepelende serie
+        const seriesWon = m.p1Series >= 5 || m.p2Series >= 5;
+        
+        if (seriesWon) {
+          // Wel 5 punten: Met icoon, ZONDER extra stip aan het einde
+          modeDisplay = `<span class="text-[11px] font-semibold text-primary uppercase tracking-wider">🏆 Competitie</span>`;
+        } else {
+          // Geen 5 punten: Alleen tekst, ZONDER extra stip aan het einde
+          modeDisplay = `<span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Competitie</span>`;
+        }
+      }
+      // ----------------------------------------------
+      // ----------------------------------------------
+
         return `
           <div class="bg-surface-container-low p-space-md rounded-xl border border-surface-variant/40 hover:border-primary/40 transition-all shadow-sm">
             <div class="flex items-center justify-between text-xs text-on-surface-variant mb-2">
               <div class="flex items-center gap-1.5 flex-wrap">
+                
                 <!-- Type Spel Chip -->
+              ${modeDisplay}
                 
                 <!-- Overkoepelende stand subtiel weergeven -->
                 ${isSeries && m.seriesStand ? `
