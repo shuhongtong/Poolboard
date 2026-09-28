@@ -597,7 +597,7 @@
         <button class="w-full py-2.5 rounded-xl bg-surface-container-high border border-primary/30 text-primary font-label-sm uppercase font-semibold active:scale-95 transition-all hover:bg-surface-bright hidden" id="winner-new-series-btn" onclick="startNewSeries()">
           Nieuwe Serie Beginnen
         </button>
-        <button class="w-full py-2 text-xs text-on-surface-variant hover:text-on-surface transition-colors" onclick="closeWinnerModal()">
+        <button id="winner-continue-btn" class="w-full py-2 text-xs text-on-surface-variant hover:text-on-surface transition-colors" onclick="closeWinnerModal()">
           Blijf doorspelen
         </button>
       </div>
@@ -648,7 +648,7 @@
       discipline: '8-Ball',
       raceTo: 5,
       gameMode: 'Vrij Spel', // 'Vrij Spel' (standaard), 'Competitie', 'Toernooi'
-      seriesTarget: 5,       // 5 gewonnen wedstrijden voor overkoepelende winst
+      seriesTarget: 5,       // aantal gewonnen wedstrijden voor overkoepelende winst
       sound: true,
       shotClockOn: false,
 
@@ -663,6 +663,7 @@
       currentTurn: 'p1',
       isMatchWon: false,
       matchRecorded: false,
+      seriesFinished: false, // true = competitie is afgelopen, wacht op keuze in finale-scherm
 
       // Spelers inclusief overkoepelende seriesScore
       p1: { name: 'Naam speler 1', score: 0, fouls: 0, eights: 0, seriesScore: 0 },
@@ -1004,7 +1005,13 @@
     }
 
     // --- Adjust Scores & Subs ---
+    // Is de Competitie afgelopen (iemand heeft seriesTarget gehaald)?
+    function isSeriesFinal() {
+      return App.gameMode === 'Competitie' && App.seriesFinished === true;
+    }
+
     function adjustScore(player, amount) {
+      if (isSeriesFinal()) return; // competitie afgelopen: niet meer scoren
       snapshotState();
       const current = App[player].score;
       const next = Math.max(0, current + amount);
@@ -1026,6 +1033,7 @@
     }
 
     function adjustSub(player, type, amount) {
+      if (isSeriesFinal()) return;
       snapshotState();
       const current = App[player][type];
       App[player][type] = Math.max(0, current + amount);
@@ -1160,14 +1168,20 @@ function updatePlayerName(player, val) {
     }
 
     // --- Winner & Finish Match Logic ---
-    function triggerWin(winnerKey) {
-      playSound('win');
+    // restoring = true: het finale-scherm wordt alleen opnieuw getoond na het openen van de app
+    // (geen geluid, geen extra punt erbij, geen opnieuw opslaan)
+    function triggerWin(winnerKey, restoring = false) {
+      if (!restoring) playSound('win');
       App.isMatchWon = true;
 
       // Verhoog overkoepelende score als Competitie of Toernooi actief is
       const isSeriesMode = App.gameMode !== 'Vrij Spel';
-      if (isSeriesMode) {
+      if (isSeriesMode && !restoring) {
         App[winnerKey].seriesScore++;
+        // Competitie afgelopen? Dan de vlag zetten en meteen bewaren
+        if (App.gameMode === 'Competitie' && App[winnerKey].seriesScore >= App.seriesTarget) {
+          App.seriesFinished = true;
+        }
         saveStateToStorage();
       }
 
@@ -1181,8 +1195,9 @@ function updatePlayerName(player, val) {
       const winnerSeriesStanding = document.getElementById('winner-series-standing');
       const rematchBtn = document.getElementById('winner-rematch-btn');
       const newSeriesBtn = document.getElementById('winner-new-series-btn');
+      const continueBtn = document.getElementById('winner-continue-btn');
 
-      // Check of een speler de overkoepelende serie wint (5 punten)
+      // Check of een speler de overkoepelende serie wint (seriesTarget punten)
       const hasWonSeries = isSeriesMode && App[winnerKey].seriesScore >= App.seriesTarget;
 
       if (hasWonSeries) {
@@ -1193,9 +1208,11 @@ function updatePlayerName(player, val) {
         winnerScore.textContent = `${App.p1.seriesScore} - ${App.p2.seriesScore}`;
 
         winnerSeriesStanding.classList.remove('hidden');
-        winnerSeriesStanding.textContent = `${winnerName} wint de serie met 5 overwinningen!`;
+        winnerSeriesStanding.textContent = `${winnerName} wint de serie met ${App.seriesTarget} overwinningen!`;
 
-        rematchBtn.textContent = 'Volgende Losse Wedstrijd';
+        // Finale: geen "Volgende Losse Wedstrijd" en geen "Blijf doorspelen"
+        rematchBtn.classList.add('hidden');
+        continueBtn.classList.add('hidden');
         newSeriesBtn.classList.remove('hidden');
         newSeriesBtn.textContent = `Nieuwe ${App.gameMode} Beginnen`;
       } else if (isSeriesMode) {
@@ -1206,8 +1223,10 @@ function updatePlayerName(player, val) {
         winnerScore.textContent = `${App.p1.score} - ${App.p2.score}`;
 
         winnerSeriesStanding.classList.remove('hidden');
-        winnerSeriesStanding.textContent = `${App.gameMode} Stand: ${App.p1.name} ${App.p1.seriesScore} - ${App.p2.seriesScore} ${App.p2.name} (Doel: 5)`;
+        winnerSeriesStanding.textContent = `${App.gameMode} Stand: ${App.p1.name} ${App.p1.seriesScore} - ${App.p2.seriesScore} ${App.p2.name} (Doel: ${App.seriesTarget})`;
 
+        rematchBtn.classList.remove('hidden');
+        continueBtn.classList.remove('hidden');
         rematchBtn.textContent = 'Volgende Wedstrijd in Serie';
         newSeriesBtn.classList.remove('hidden');
         newSeriesBtn.textContent = `Reset ${App.gameMode} Stand`;
@@ -1219,6 +1238,8 @@ function updatePlayerName(player, val) {
         winnerScore.textContent = `${App.p1.score} - ${App.p2.score}`;
 
         winnerSeriesStanding.classList.add('hidden');
+        rematchBtn.classList.remove('hidden');
+        continueBtn.classList.remove('hidden');
         rematchBtn.textContent = 'Nieuwe Wedstrijd (Rematch)';
         newSeriesBtn.classList.add('hidden');
       }
@@ -1250,6 +1271,8 @@ function updatePlayerName(player, val) {
     }
 
     function closeWinnerModal() {
+      // Het finale-scherm mag pas dicht als een van de twee knoppen de vlag heeft uitgezet
+      if (isSeriesFinal()) return;
       document.getElementById('modal-winner').classList.add('hidden');
     }
 
@@ -1261,11 +1284,17 @@ function updatePlayerName(player, val) {
 
     function saveAndGoToHistory() {
       recordMatch();
+      if (isSeriesFinal()) {
+        // Competitie-finale: eerst opgeslagen (hierboven), nu alles terug naar 0
+        finishSeriesAndReset();
+        renderHistory();
+      }
       closeWinnerModal();
       navigateTo('history');
     }
 
     function startRematch() {
+      if (isSeriesFinal()) return; // extra slot: na de finale geen losse wedstrijd meer
       recordMatch();
       closeWinnerModal();
       App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
@@ -1283,14 +1312,7 @@ function updatePlayerName(player, val) {
     // Nieuwe serie beginnen: reset de overkoepelende stand naar 0
     function startNewSeries() {
       recordMatch();
-      App.p1.seriesScore = 0;
-      App.p2.seriesScore = 0;
-      App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
-      App.p2.score = 0; App.p2.fouls = 0; App.p2.eights = 0;
-      App.undoHistory = [];
-      App.isMatchWon = false;
-      App.matchRecorded = false;
-      saveStateToStorage();
+      finishSeriesAndReset();
       resetTimer();
       renderScores();
       renderTurn();
@@ -1299,10 +1321,27 @@ function updatePlayerName(player, val) {
       playSound('hit');
     }
 
+    // Zet de competitie terug op 0 - 0 (wordt pas aangeroepen NADAT de wedstrijd is opgeslagen)
+    function finishSeriesAndReset() {
+      App.p1.seriesScore = 0;
+      App.p2.seriesScore = 0;
+      App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
+      App.p2.score = 0; App.p2.fouls = 0; App.p2.eights = 0;
+      App.undoHistory = [];
+      App.isMatchWon = false;
+      App.matchRecorded = false;
+      App.seriesFinished = false;
+      saveStateToStorage();
+      renderScores();
+      renderTurn();
+      updateUndoButton();
+    }
+
     function resetSeries() {
       if (confirm(`Weet je zeker dat je de overkoepelende stand voor ${App.gameMode} wilt resetten naar 0 - 0?`)) {
         App.p1.seriesScore = 0;
         App.p2.seriesScore = 0;
+        App.seriesFinished = false;
         saveStateToStorage();
         renderScores();
         const settingsStand = document.getElementById('settings-series-stand');
@@ -1356,6 +1395,7 @@ function updatePlayerName(player, val) {
           raceTo: App.raceTo,
           currentTurn: App.currentTurn,
           timerSecs: App.timerSecs,
+          seriesFinished: App.seriesFinished,
           p1: {
             name: App.p1.name,
             score: App.p1.score,
@@ -1385,6 +1425,7 @@ function updatePlayerName(player, val) {
           if (state.raceTo !== undefined) App.raceTo = state.raceTo;
           if (state.currentTurn) App.currentTurn = state.currentTurn;
           if (state.timerSecs !== undefined) App.timerSecs = state.timerSecs;
+          if (state.seriesFinished !== undefined) App.seriesFinished = state.seriesFinished === true;
           if (state.p1) {
             if (state.p1.name) App.p1.name = state.p1.name;
             if (state.p1.score !== undefined) App.p1.score = state.p1.score;
@@ -1474,18 +1515,20 @@ function updatePlayerName(player, val) {
         }
 
         const isSeries = mode !== 'Vrij Spel';
+        // Beslissende wedstrijd van een competitie: geen Rematch-knop
+        const isFinalMatch = mode === 'Competitie' && (m.p1Series >= App.seriesTarget || m.p2Series >= App.seriesTarget);
 
        // --- NIEUWE LOGICA VOOR COMPETITIE WEERGAVE ---
       let modeDisplay = '';
       if (mode === 'Competitie') {
-        // Controleer of iemand 5 punten heeft gehaald in de overkoepelende serie
-        const seriesWon = m.p1Series >= 5 || m.p2Series >= 5;
+        // Controleer of iemand seriesTarget punten heeft gehaald in de overkoepelende serie
+        const seriesWon = m.p1Series >= App.seriesTarget || m.p2Series >= App.seriesTarget;
         
         if (seriesWon) {
-          // Wel 5 punten: Met icoon
+          // Doel gehaald: Met icoon
           modeDisplay = `<span class="text-[11px] font-semibold text-primary uppercase tracking-wider">🏆 Competitie</span>`;
         } else {
-          // Geen 5 punten: Alleen tekst
+          // Doel niet gehaald: Alleen tekst
           modeDisplay = `<span class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">Competitie</span>`;
         }
       } else if (mode === 'Vrij Spel') {
@@ -1547,10 +1590,10 @@ function updatePlayerName(player, val) {
                 <span>8-Balls: ${m.p1.eights} vs ${m.p2.eights}</span>
               </div>
               <div class="flex items-center gap-2">
-                <button class="text-primary hover:underline font-medium text-xs flex items-center gap-1" onclick="rematch('${m.id}')">
+                ${isFinalMatch ? '' : `<button class="text-primary hover:underline font-medium text-xs flex items-center gap-1" onclick="rematch('${m.id}')">
                   <span class="material-symbols-outlined text-[14px]">replay</span>
                   <span>Rematch</span>
-                </button>
+                </button>`}
                 <button class="text-on-surface-variant hover:text-error transition-colors p-1" onclick="deleteMatch('${m.id}')">
                   <span class="material-symbols-outlined text-[16px]">delete</span>
                 </button>
@@ -1564,6 +1607,8 @@ function updatePlayerName(player, val) {
     function rematch(id) {
       const m = App.matchHistory.find(i => i.id === id);
       if (!m) return;
+      // Veiligheid: van een beslissende competitiewedstrijd mag geen rematch gestart worden
+      if (m.gameMode === 'Competitie' && (m.p1Series >= App.seriesTarget || m.p2Series >= App.seriesTarget)) return;
       App.p1.name = m.p1.name;
       App.p2.name = m.p2.name;
       App.discipline = m.discipline;
@@ -1759,6 +1804,26 @@ function updatePlayerName(player, val) {
       renderScores();
       renderTurn();
       updateFullscreenIcon();
+
+      // Competitie was al afgelopen toen de app werd gesloten: toon het finale-scherm opnieuw
+      if (App.seriesFinished) {
+        const p1Wins = App.p1.seriesScore >= App.seriesTarget;
+        const p2Wins = App.p2.seriesScore >= App.seriesTarget;
+        if (App.gameMode === 'Competitie' && (p1Wins || p2Wins)) {
+          triggerWin(App.p1.seriesScore >= App.p2.seriesScore ? 'p1' : 'p2', true);
+        } else {
+          App.seriesFinished = false; // vlag klopt niet met de stand: opruimen
+          saveStateToStorage();
+        }
+      }
+
+      // Finale-scherm mag niet met Escape gesloten worden
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isSeriesFinal()) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
     });
   </script>
 </body>
