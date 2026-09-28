@@ -1,0 +1,20 @@
+{
+  "name": "Minimalist Pool Scoreboard",
+  "short_name": "Pool Score",
+  "description": "Minimalistisch digitaal scorebord voor poolbiljart (8-ball, 9-ball, 10-ball, 14.1)",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#121415",
+  "theme_color": "#121415",
+  "categories": ["sports", "utilities"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='240' fill='%23121415' stroke='%23ffb2ba' stroke-width='16'/%3E%3Ccircle cx='256' cy='256' r='120' fill='%23ffb2ba'/%3E%3Ctext x='256' y='295' font-size='120' font-family='sans-serif' font-weight='bold' fill='%23670020' text-anchor='middle'%3E8%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html class="dark" lang="nl">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta content="mobile_tab" name="shell-type"/>
+  <title>PoolBoard</title>
+
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="PoolBoard"/>
+  <meta name="application-name" content="PoolBoard"/>
+  <meta name="theme-color" content="#121415"/>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='240' fill='%23121415' stroke='%23ffb2ba' stroke-width='16'/%3E%3Ccircle cx='256' cy='256' r='120' fill='%23ffb2ba'/%3E%3Ctext x='256' y='295' font-size='120' font-family='sans-serif' font-weight='bold' fill='%23670020' text-anchor='middle'%3E8%3C/text%3E%3C/svg%3E"/>
+  <link rel="manifest" href="manifest.json"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-container": "#b7b5b4",
+            "outline": "#a68a8c",
+            "background": "#121415",
+            "surface-tint": "#ffb2ba",
+            "on-error-container": "#ffdad6",
+            "surface-container": "#1e2021",
+            "surface-variant": "#333536",
+            "secondary-container": "#474746",
+            "on-tertiary-fixed-variant": "#474747",
+            "on-secondary-fixed-variant": "#474746",
+            "primary": "#ffb2ba",
+            "primary-fixed-dim": "#ffb2ba",
+            "on-primary": "#670020",
+            "tertiary-fixed-dim": "#c8c6c6",
+            "secondary-fixed-dim": "#c8c6c5",
+            "surface-bright": "#38393a",
+            "inverse-primary": "#ad2e49",
+            "secondary": "#c8c6c5",
+            "tertiary": "#c8c6c6",
+            "tertiary-fixed": "#e4e2e1",
+            "on-error": "#690005",
+            "on-tertiary": "#303030",
+            "inverse-on-surface": "#2f3132",
+            "on-tertiary-container": "#2a2a2a",
+            "surface-container-high": "#282a2b",
+            "surface-container-highest": "#333536",
+            "outline-variant": "#584143",
+            "error-container": "#93000a",
+            "secondary-fixed": "#e5e2e1",
+            "on-primary-fixed": "#400010",
+            "primary-container": "#ef6078",
+            "surface-container-lowest": "#0c0e0f",
+            "tertiary-container": "#929090",
+            "on-tertiary-fixed": "#1b1c1c",
+            "on-secondary-fixed": "#1c1b1b",
+            "inverse-surface": "#e2e2e3",
+            "on-surface": "#e2e2e3",
+            "error": "#ffb4ab",
+            "on-primary-container": "#5a001b",
+            "primary-fixed": "#ffd9dc",
+            "on-background": "#e2e2e3",
+            "surface-container-low": "#1a1c1d",
+            "surface-dim": "#121415",
+            "surface": "#121415",
+            "on-surface-variant": "#dfbfc1",
+            "on-primary-fixed-variant": "#8c1233"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xl": "2rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-2xl": "3rem",
+            "space-sm": "0.5rem",
+            "margin": "1.5rem",
+            "space-md": "1rem"
+          },
+          fontFamily: {
+            "body-lg": ["Inter", "sans-serif"],
+            "headline-md": ["Inter", "sans-serif"],
+            "label-lg": ["Inter", "sans-serif"],
+            "label-sm": ["Inter", "sans-serif"],
+            "display-score-desktop": ["Inter", "sans-serif"],
+            "display-score-mobile": ["Inter", "sans-serif"],
+            "headline-lg": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts: Inter & Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+
+  <style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overscroll-behavior: none;
+        min-height: max(884px, 100dvh);
+        background-color: #121415;
+        color: #e2e2e3;
+        font-family: 'Inter', sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      main > :first-child {
+        margin-top: 0 !important;
+      }
+      main > :last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Exact Design Spec Typography */
+    .font-display-score-mobile, .text-display-score-mobile {
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .text-headline-md, .font-headline-md {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 24px;
+    }
+    .text-headline-lg, .font-headline-lg {
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 32px;
+    }
+    .text-label-sm, .font-label-sm {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 16px;
+      letter-spacing: 0.05em;
+    }
+    .text-body-sm, .font-body-sm {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+    }
+
+    /* Number Pop Animation */
+    .score-pop {
+      animation: pop 0.16s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.92); }
+      50% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    /* Confetti Burst */
+    .confetti-piece {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: drop 1.6s ease-out forwards;
+    }
+    @keyframes drop {
+      0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translateY(220px) rotate(420deg) scale(0.4); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body-lg flex flex-col min-h-screen">
+
+  <!-- ================= HEADER ================= -->
+  <header class="fixed top-0 inset-x-0 z-30 bg-surface/85 backdrop-blur-xl pt-safe border-b border-surface-variant/20">
+    <div class="h-16 px-space-md flex items-center justify-between max-w-md mx-auto">
+      <div class="flex items-center gap-space-sm">
+        <h1 class="text-headline-md font-headline-md uppercase text-primary tracking-wider" id="header-title">PoolBoard</h1>
+      </div>
+
+      <!-- Quick Utilities Icons in Header -->
+      <div class="flex items-center gap-1">
+        <!-- Undo Button -->
+        <button id="undo-btn" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-all opacity-30 cursor-not-allowed" onclick="handleUndo()" title="Undo" disabled>
+          <span class="material-symbols-outlined text-[19px]">undo</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="sound-btn" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-all" onclick="toggleSound()" title="Sound Effects">
+          <span class="material-symbols-outlined text-[19px]" id="sound-icon">volume_up</span>
+        </button>
+
+        <!-- Fullscreen Toggle -->
+        <button id="fullscreen-btn" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-all" onclick="toggleFullscreen()" title="Fullscreen">
+          <span class="material-symbols-outlined text-[19px]" id="fullscreen-icon">fullscreen</span>
+        </button>
+
+        <!-- Settings Modal Trigger -->
+        <button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-all" onclick="openSettingsModal()" title="Settings">
+          <span class="material-symbols-outlined text-[19px]">settings</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN VIEWPORT ================= -->
+  <main class="flex flex-col relative w-full max-w-md mx-auto px-space-md pt-[calc(5rem+env(safe-area-inset-top))] pb-24 bg-surface min-h-screen">
+    
+    <!-- ================= SCREEN 1: SCORE SCREEN ================= -->
+    <div id="view-score" class="flex flex-col w-full pb-6">
+
+      <!-- Timer & Match Status Header -->
+      <div class="sticky top-[calc(4rem+env(safe-area-inset-top))] z-20 flex items-center justify-between bg-surface-container-low/95 backdrop-blur-md p-space-md rounded-xl mb-space-md shadow-sm border border-surface-variant/30 mt-3">
+        <div class="flex items-center gap-space-sm cursor-pointer" onclick="toggleTimer()" title="Click to start/stop timer">
+          <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;" id="timer-icon-pulse">timer</span>
+          <div class="font-headline-md text-headline-md text-on-surface tracking-wider font-mono tabular-nums font-semibold" id="match-timer">02:00:00</div>
+
+          <!-- Race indicator chip (if active) -->
+          <span id="race-pill" class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant ml-1 cursor-pointer" onclick="event.stopPropagation(); openSettingsModal();">
+            Race 5
+          </span>
+        </div>
+        
+        <div class="flex items-center gap-space-xs">
+          <!-- Start / Stop Button -->
+          <button class="bg-primary text-on-primary px-space-md py-space-xs rounded-lg font-label-sm text-label-sm uppercase transition-transform active:scale-95 flex items-center gap-space-xs font-semibold" id="timer-toggle" onclick="toggleTimer()">
+            <span class="material-symbols-outlined text-[16px]" id="timer-icon">play_arrow</span>
+            <span id="timer-text">Start</span>
+          </button>
+          
+          <!-- Reset Timer Button -->
+          <button class="bg-surface-variant text-on-surface-variant hover:text-on-surface px-space-sm py-space-xs rounded-lg font-label-sm text-label-sm uppercase transition-transform active:scale-95" onclick="resetTimer()" title="Reset timer">
+            <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Shot Clock Widget (optional toggleable) -->
+      <div id="shot-clock-widget" class="hidden bg-surface-container-low p-space-sm px-space-md rounded-xl mb-space-md flex items-center justify-between border border-surface-variant/30">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-outline text-[18px]">av_timer</span>
+          <span class="text-label-sm text-on-surface-variant">Shot:</span>
+          <span class="font-mono text-headline-md font-bold text-primary" id="shot-clock-val">30s</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button class="px-2 py-1 rounded bg-surface-variant text-on-surface text-xs font-medium active:scale-95" onclick="resetShotClock()">Reset (30s)</button>
+          <button class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant text-xs hover:text-on-surface active:scale-95" onclick="extendShotClock()">+30s</button>
+        </div>
+      </div>
+
+      <!-- Players Section (Stacked Cleanly for Thumb Reach & Clarity) -->
+      <div class="flex flex-col gap-space-md mb-space-md">
+
+        <!-- ================= Player 1 Card (Active State Default) ================= -->
+        <div class="bg-surface-container-low p-space-md rounded-xl relative transition-all duration-300 ring-1 ring-primary/40 bg-gradient-to-r from-primary/5 via-surface-container-low to-surface-container-low mb-space-md cursor-pointer" id="p1-card" onclick="setTurn('p1')">
+          <!-- Active Turn Indicator & Name -->
+          <div class="flex items-center justify-between mb-space-sm">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-3 h-3 rounded-full bg-primary animate-pulse transition-all" id="p1-dot"></div>
+              <input class="bg-transparent text-headline-md font-headline-md text-on-surface focus:outline-none border-b border-transparent focus:border-primary w-32 font-semibold" type="text" value="Naam speler 1" id="p1-name" onchange="updatePlayerName('p1', this.value)" onclick="event.stopPropagation()"/>
+            </div>
+            <!-- Race Dots -->
+            <div id="p1-dots" class="flex items-center gap-1"></div>
+          </div>
+
+          <!-- Main Score & Steppers -->
+          <div class="flex items-center justify-between py-space-sm">
+            <div>
+              <!-- Series Score (Competitie / Toernooi) -->
+              <div id="p1-series-badge" class="hidden mb-1.5">
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 border border-primary/25 text-primary" id="p1-series-text">
+                  Competitie: 0
+                </span>
+              </div>
+              <div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 font-medium">Frames</div>
+              <div class="font-display-score-mobile text-display-score-mobile text-primary font-bold select-none transition-all duration-150" id="p1-score">0</div>
+            </div>
+            <div class="flex items-center gap-space-sm" onclick="event.stopPropagation()">
+              <button class="w-12 h-12 rounded-xl bg-surface-variant text-on-surface flex items-center justify-center text-headline-lg font-bold active:scale-90 transition-transform shadow-sm hover:bg-surface-bright" onclick="adjustScore('p1', -1)">-</button>
+              <button class="w-14 h-14 rounded-xl bg-primary text-on-primary flex items-center justify-center text-headline-lg font-bold active:scale-90 transition-transform shadow-md hover:brightness-105" onclick="adjustScore('p1', 1)">+</button>
+            </div>
+          </div>
+
+          <!-- Secondary Counters (Cue Ball / 8-Ball Fouls or stats) -->
+          <div class="flex items-center justify-between pt-space-sm border-t border-surface-variant/30 mt-space-sm" onclick="event.stopPropagation()">
+            <!-- Witte Bal (Fouls/Ball in hand) -->
+            <div class="flex items-center gap-space-md">
+              <div class="flex items-center gap-space-xs">
+                <div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[10px] font-bold shadow-inner" title="Witte Bal Fout">W</div>
+                <span class="text-label-sm text-on-surface-variant">Cue ball:</span>
+                <span class="text-body-sm font-bold text-on-surface w-4 text-center" id="p1-fouls">0</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p1', 'fouls', -1)">-</button>
+                <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p1', 'fouls', 1)">+</button>
+              </div>
+            </div>
+
+            <!-- 8-Ball Wins -->
+            <div class="flex items-center gap-space-xs">
+              <div class="w-6 h-6 rounded-full bg-surface-bright text-on-surface flex items-center justify-center text-[10px] font-bold border border-outline-variant shadow-inner" title="8-Ball Wins">8</div>
+              <span class="text-label-sm text-on-surface-variant">8-Ball:</span>
+              <span class="text-body-sm font-bold text-on-surface w-4 text-center" id="p1-eights">0</span>
+              <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs ml-1 hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p1', 'eights', -1)">-</button>
+              <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p1', 'eights', 1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= Player 2 Card (Inactive State Default) ================= -->
+        <div class="bg-surface-container-low p-space-md rounded-xl relative transition-all duration-300 ring-1 ring-surface-variant cursor-pointer" id="p2-card" onclick="setTurn('p2')">
+          <!-- Active Turn Indicator & Name -->
+          <div class="flex items-center justify-between mb-space-sm">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-3 h-3 rounded-full bg-transparent transition-all" id="p2-dot"></div>
+              <input class="bg-transparent text-headline-md font-headline-md text-on-surface focus:outline-none border-b border-transparent focus:border-primary w-32 font-semibold" type="text" value="Naam speler 2" id="p2-name" onchange="updatePlayerName('p2', this.value)" onclick="event.stopPropagation()"/>
+            </div>
+            <!-- Race Dots -->
+            <div id="p2-dots" class="flex items-center gap-1"></div>
+          </div>
+
+          <!-- Main Score & Steppers -->
+          <div class="flex items-center justify-between py-space-sm">
+            <div>
+              <!-- Series Score (Competitie / Toernooi) -->
+              <div id="p2-series-badge" class="hidden mb-1.5">
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-secondary-container/50 border border-secondary/25 text-secondary" id="p2-series-text">
+                  Competitie: 0
+                </span>
+              </div>
+              <div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 font-medium">Frames</div>
+              <div class="font-display-score-mobile text-display-score-mobile text-secondary font-bold select-none transition-all duration-150" id="p2-score">0</div>
+            </div>
+            <div class="flex items-center gap-space-sm" onclick="event.stopPropagation()">
+              <button class="w-12 h-12 rounded-xl bg-surface-variant text-on-surface flex items-center justify-center text-headline-lg font-bold active:scale-90 transition-transform shadow-sm hover:bg-surface-bright" onclick="adjustScore('p2', -1)">-</button>
+              <button class="w-14 h-14 rounded-xl bg-primary text-on-primary flex items-center justify-center text-headline-lg font-bold active:scale-90 transition-transform shadow-md hover:brightness-105" onclick="adjustScore('p2', 1)">+</button>
+            </div>
+          </div>
+
+          <!-- Secondary Counters -->
+          <div class="flex items-center justify-between pt-space-sm border-t border-surface-variant/30 mt-space-sm" onclick="event.stopPropagation()">
+            <!-- Witte Bal (Fouls/Ball in hand) -->
+            <div class="flex items-center gap-space-md">
+              <div class="flex items-center gap-space-xs">
+                <div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[10px] font-bold shadow-inner" title="Witte Bal Fout">W</div>
+                <span class="text-label-sm text-on-surface-variant">Cue ball:</span>
+                <span class="text-body-sm font-bold text-on-surface w-4 text-center" id="p2-fouls">0</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p2', 'fouls', -1)">-</button>
+                <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p2', 'fouls', 1)">+</button>
+              </div>
+            </div>
+
+            <!-- 8-Ball Wins -->
+            <div class="flex items-center gap-space-xs">
+              <div class="w-6 h-6 rounded-full bg-surface-bright text-on-surface flex items-center justify-center text-[10px] font-bold border border-outline-variant shadow-inner" title="8-Ball Wins">8</div>
+              <span class="text-label-sm text-on-surface-variant">8-Ball:</span>
+              <span class="text-body-sm font-bold text-on-surface w-4 text-center" id="p2-eights">0</span>
+              <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs ml-1 hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p2', 'eights', -1)">-</button>
+              <button class="w-7 h-7 rounded bg-surface-variant text-on-surface text-xs hover:bg-surface-bright active:scale-90 transition-transform font-bold" onclick="adjustSub('p2', 'eights', 1)">+</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Action Utilities Strip -->
+      <div class="flex items-center justify-between gap-2 pt-1">
+        <button class="flex-1 py-2.5 px-3 rounded-xl bg-surface-container-low border border-surface-variant/40 text-on-surface-variant hover:text-on-surface active:scale-95 transition-all flex items-center justify-center gap-1.5 text-label-sm font-medium" onclick="switchTurn()">
+          <span class="material-symbols-outlined text-[17px]">swap_horiz</span>
+          <span>Wissel Beurt</span>
+        </button>
+
+        <button class="flex-1 py-2.5 px-3 rounded-xl bg-surface-container-low border border-surface-variant/40 text-on-surface-variant hover:text-primary active:scale-95 transition-all flex items-center justify-center gap-1.5 text-label-sm font-medium" onclick="promptEndMatch()">
+          <span class="material-symbols-outlined text-[17px]">emoji_events</span>
+          <span>Opslaan</span>
+        </button>
+
+        <button class="py-2.5 px-3 rounded-xl bg-surface-container-low border border-surface-variant/40 text-on-surface-variant hover:text-error active:scale-95 transition-all flex items-center justify-center text-label-sm" onclick="promptResetMatch()" title="Alles wissen">
+          <span class="material-symbols-outlined text-[17px]">restart_alt</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ================= SCREEN 2: HISTORY SCREEN ================= -->
+    <div id="view-history" class="hidden flex flex-col w-full pb-6 pt-3">
+      
+      <!-- Summary Metrics Bar -->
+      <div class="bg-surface-container-low p-space-md rounded-xl mb-space-md border border-surface-variant/30">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">Statistieken</span>
+          <span class="text-xs text-primary font-mono" id="stat-total-matches">0 Wedstrijden</span>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-2 text-center py-1">
+          <div class="bg-surface-container/60 p-2 rounded-lg">
+            <div class="text-[11px] text-on-surface-variant uppercase tracking-wider mb-0.5 truncate" id="stat-p1-label">Speler 1</div>
+            <div class="text-headline-md font-bold text-primary font-mono" id="stat-p1-wins">0</div>
+            <div class="text-[10px] text-on-surface-variant" id="stat-p1-winrate">0% win</div>
+          </div>
+          <div class="bg-surface-container/60 p-2 rounded-lg">
+            <div class="text-[11px] text-on-surface-variant uppercase tracking-wider mb-0.5">Racks</div>
+            <div class="text-headline-md font-bold text-on-surface font-mono" id="stat-total-frames">0</div>
+            <div class="text-[10px] text-on-surface-variant">gespeeld</div>
+          </div>
+          <div class="bg-surface-container/60 p-2 rounded-lg">
+            <div class="text-[11px] text-on-surface-variant uppercase tracking-wider mb-0.5 truncate" id="stat-p2-label">Speler 2</div>
+            <div class="text-headline-md font-bold text-secondary font-mono" id="stat-p2-wins">0</div>
+            <div class="text-[10px] text-on-surface-variant" id="stat-p2-winrate">0% win</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History List Controls -->
+      <div class="flex items-center justify-between mb-space-sm px-1">
+        <h2 class="text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">Match Geschiedenis</h2>
+        <button id="clear-history-btn" class="text-xs text-on-surface-variant hover:text-error transition-colors flex items-center gap-1 font-medium" onclick="confirmClearHistory()">
+          <span class="material-symbols-outlined text-[14px]">delete</span>
+          <span>Wissen</span>
+        </button>
+      </div>
+
+      <!-- History List Dynamic Container -->
+      <div id="history-items" class="flex flex-col gap-space-md"></div>
+
+      <!-- Empty State -->
+      <div id="history-empty" class="flex flex-col items-center justify-center py-16 px-space-md text-center">
+        <div class="w-16 h-16 rounded-full bg-surface-container-low border border-surface-variant/40 flex items-center justify-center text-primary mb-space-md">
+          <span class="material-symbols-outlined text-[32px]">history</span>
+        </div>
+        <h3 class="text-headline-md font-bold text-on-surface mb-1">Nog geen wedstrijden</h3>
+        <p class="text-body-sm text-on-surface-variant max-w-xs mb-space-lg">
+          Speel een wedstrijd en tik op Opslaan of bereik het doel om hier de statistieken te bewaren.
+        </p>
+        <button class="bg-primary text-on-primary px-space-lg py-2.5 rounded-xl font-label-sm uppercase font-semibold active:scale-95 transition-transform" onclick="navigateTo('score')">
+          Start Eerste Wedstrijd
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 pb-safe bg-surface/90 backdrop-blur-xl border-t border-surface-variant/20" data-active-classes="text-primary bg-surface-variant/50">
+    <div class="flex justify-around items-center h-20 px-space-md max-w-md mx-auto">
+      <!-- Score Tab -->
+      <a aria-current="page" id="tab-score" class="flex flex-col items-center justify-center gap-space-xs w-16 h-16 rounded-xl transition-all text-primary bg-surface-variant/50 cursor-pointer" onclick="navigateTo('score')">
+        <span class="material-symbols-outlined">sports_score</span>
+        <span class="text-label-sm font-label-sm">Score</span>
+      </a>
+
+      <!-- History Tab -->
+      <a id="tab-history" class="flex flex-col items-center justify-center gap-space-xs w-16 h-16 text-on-surface-variant hover:text-on-surface rounded-xl transition-all cursor-pointer" onclick="navigateTo('history')">
+        <span class="material-symbols-outlined">history</span>
+        <span class="text-label-sm font-label-sm">History</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ================= MODAL: SETTINGS ================= -->
+  <div id="modal-settings" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-0 sm:p-4">
+    <div class="bg-surface-container w-full max-w-md rounded-2xl sm:rounded-2xl border border-surface-variant/40 p-space-lg max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-space-md border-b border-surface-variant/40 mb-space-md">
+        <h3 class="text-headline-md font-bold text-on-surface flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">tune</span>
+          <span>Wedstrijd Instellingen</span>
+        </h3>
+        <button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface" onclick="closeSettingsModal()">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- NIEUWE SECTIE: Type Spel (Spelmodi) -->
+      <div class="mb-space-md">
+        <label class="block text-label-sm font-semibold uppercase text-on-surface-variant tracking-wider mb-2">Type Spel</label>
+        <div class="grid grid-cols-2 gap-1.5" id="gamemode-group">
+          <button type="button" class="py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all mode-btn bg-primary text-on-primary border-primary" data-val="Vrij Spel">Vrij Spel</button>
+          <button type="button" class="py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all mode-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface" data-val="Competitie">Competitie</button>
+        </div>
+
+        <!-- Series reset and status option in settings -->
+        <div id="settings-series-info" class="hidden mt-2 p-2.5 rounded-lg bg-surface-container-low border border-surface-variant/40 flex items-center justify-between">
+          <div class="text-xs">
+            <span class="text-on-surface-variant block text-[10px] uppercase font-semibold">Overkoepelende Stand</span>
+            <span class="font-bold text-primary font-mono text-sm" id="settings-series-stand">0 - 0</span>
+          </div>
+          <button type="button" class="text-xs text-error hover:underline font-medium px-2 py-1 rounded bg-surface-variant/40 border border-error/30" onclick="resetSeries()">
+            Serie Resetten
+          </button>
+        </div>
+      </div>
+
+      <!-- Race Target Selection -->
+      <div class="mb-space-md">
+        <label class="block text-label-sm font-semibold uppercase text-on-surface-variant tracking-wider mb-2">Frames per wedstrijd</label>
+        <div class="grid grid-cols-5 gap-1.5 mb-2" id="race-group">
+          <button type="button" class="py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface" data-val="0">Geen</button>
+          <button type="button" class="py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface" data-val="3">3</button>
+          <button type="button" class="py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-primary text-on-primary border-primary" data-val="5">5</button>
+          <button type="button" class="py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface" data-val="7">7</button>
+          <button type="button" class="py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface" data-val="9">9</button>
+        </div>
+      </div>
+
+      <!-- Shot Clock Option -->
+      <div class="mb-space-md flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-surface-variant/40">
+        <div>
+          <div class="text-body-sm font-semibold text-on-surface">Shot Clock (30s)</div>
+          <div class="text-label-sm text-on-surface-variant">Schot-timer per stoot</div>
+        </div>
+        <input type="checkbox" id="settings-shot-clock" class="w-5 h-5 accent-primary rounded cursor-pointer"/>
+      </div>
+
+      <!-- Audio Effects Option -->
+      <div class="mb-space-lg flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-surface-variant/40">
+        <div>
+          <div class="text-body-sm font-semibold text-on-surface">Geluidseffecten</div>
+          <div class="text-label-sm text-on-surface-variant">Balcontact &amp; beurtkliks</div>
+        </div>
+        <input type="checkbox" id="settings-audio" checked class="w-5 h-5 accent-primary rounded cursor-pointer"/>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button class="flex-1 py-3 rounded-xl bg-surface-variant text-on-surface font-label-sm uppercase font-semibold active:scale-95 transition-all" onclick="closeSettingsModal()">Annuleren</button>
+        <button class="flex-1 py-3 rounded-xl bg-primary text-on-primary font-label-sm uppercase font-semibold active:scale-95 transition-all shadow-md" onclick="saveSettings()">Toepassen</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODAL: WINNER ================= -->
+  <div id="modal-winner" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-surface-container w-full max-w-sm rounded-2xl border border-primary/40 p-space-lg text-center relative overflow-hidden shadow-2xl">
+      <div id="confetti-box" class="absolute inset-0 pointer-events-none"></div>
+
+      <div class="w-16 h-16 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto mb-3" id="winner-icon-wrap">
+        <span class="material-symbols-outlined text-[36px]">emoji_events</span>
+      </div>
+
+      <span class="text-label-sm font-semibold uppercase tracking-wider text-primary mb-1 block" id="winner-badge">Wedstrijd Winnaar</span>
+      <h3 class="text-headline-lg font-bold text-on-surface mb-2" id="winner-title">Speler 1 Wint!</h3>
+      
+      <!-- Final Score Box -->
+      <div class="bg-surface-container-low p-3 rounded-xl border border-surface-variant/40 my-space-md">
+        <div class="text-label-sm text-on-surface-variant mb-1 font-medium" id="winner-score-label">Eindstand Match</div>
+        <div class="text-headline-lg font-bold text-on-surface font-mono tracking-wider" id="winner-score">5 - 3</div>
+        
+        <!-- Overkoepelende Stand Subtiel in Winner Modal -->
+        <div id="winner-series-standing" class="hidden text-xs font-semibold text-primary mt-1.5 pt-1.5 border-t border-surface-variant/40">
+          Competitie Stand: 1 - 0
+        </div>
+
+        <div class="text-xs text-on-surface-variant mt-1 flex items-center justify-center gap-2" id="winner-details">
+          <span class="material-symbols-outlined text-[14px]">timer</span>
+          <span>Duur: 18:42</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-2">
+        <button class="w-full py-3 rounded-xl bg-primary text-on-primary font-label-sm uppercase font-semibold active:scale-95 transition-all shadow-md" onclick="saveAndGoToHistory()">
+          Opslaan &amp; Bekijk Geschiedenis
+        </button>
+        <button class="w-full py-2.5 rounded-xl bg-surface-variant text-on-surface font-label-sm uppercase font-semibold active:scale-95 transition-all" id="winner-rematch-btn" onclick="startRematch()">
+          Nieuwe Wedstrijd (Rematch)
+        </button>
+        <!-- Knop voor overkoepelende reset (nieuwe serie beginnen) -->
+        <button class="w-full py-2.5 rounded-xl bg-surface-container-high border border-primary/30 text-primary font-label-sm uppercase font-semibold active:scale-95 transition-all hover:bg-surface-bright hidden" id="winner-new-series-btn" onclick="startNewSeries()">
+          Nieuwe Serie Beginnen
+        </button>
+        <button class="w-full py-2 text-xs text-on-surface-variant hover:text-on-surface transition-colors" onclick="closeWinnerModal()">
+          Blijf doorspelen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: RESET CONFIRM ================= -->
+  <!-- ================= MODAL: CLEAR HISTORY CONFIRM ================= -->
+  <div id="modal-clear-history" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-container w-full max-w-xs rounded-2xl border border-surface-variant/40 p-space-md text-center">
+      <div class="w-12 h-12 rounded-full bg-error-container/30 text-error flex items-center justify-center mx-auto mb-3">
+        <span class="material-symbols-outlined text-[28px]">delete_sweep</span>
+      </div>
+      <h4 class="text-headline-md font-bold text-on-surface mb-1">Alles Wissen?</h4>
+      <p class="text-body-sm text-on-surface-variant mb-4">Weet je zeker dat je alle wedstrijden uit de geschiedenis wilt verwijderen? Dit kan niet ongedaan worden gemaakt.</p>
+      <div class="flex items-center gap-2">
+        <button class="flex-1 py-2.5 rounded-xl bg-surface-variant text-on-surface font-label-sm uppercase font-medium active:scale-95 transition-transform" onclick="closeClearHistoryModal()">Annuleren</button>
+        <button class="flex-1 py-2.5 rounded-xl bg-error text-on-error font-label-sm uppercase font-semibold active:scale-95 transition-transform" onclick="executeClearHistory()">Wissen</button>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div id="modal-reset" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-container w-full max-w-xs rounded-2xl border border-surface-variant/40 p-space-md text-center">
+      <div class="w-12 h-12 rounded-full bg-error-container/30 text-error flex items-center justify-center mx-auto mb-3">
+        <span class="material-symbols-outlined text-[28px]">restart_alt</span>
+      </div>
+      <h4 class="text-headline-md font-bold text-on-surface mb-1">Stand Resetten?</h4>
+      <p class="text-body-sm text-on-surface-variant mb-4">Wil je frames en fouten wissen en opnieuw beginnen?</p>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <button class="flex-1 py-2.5 rounded-xl bg-surface-variant text-on-surface font-label-sm uppercase font-medium active:scale-95" onclick="closeResetModal()">Annuleren</button>
+          <button class="flex-1 py-2.5 rounded-xl bg-error text-on-error font-label-sm uppercase font-semibold active:scale-95" onclick="executeResetMatch()">Reset Match</button>
+        </div>
+        <!-- Series Reset Button in Reset Modal if in Serie Mode -->
+        <button id="modal-reset-series-btn" class="hidden w-full py-2 rounded-lg bg-surface-container-high text-xs text-on-surface-variant hover:text-error transition-colors border border-surface-variant/40" onclick="resetSeries(); closeResetModal();">
+          Reset Ook Volledige Serie
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT APPLICATION CODE ================= -->
+  <script>
+    const App = {
+      activeTab: 'score',
+      discipline: '8-Ball',
+      raceTo: 5,
+      gameMode: 'Vrij Spel', // 'Vrij Spel' (standaard), 'Competitie', 'Toernooi'
+      seriesTarget: 5,       // 5 gewonnen wedstrijden voor overkoepelende winst
+      sound: true,
+      shotClockOn: false,
+
+      timerSecs: 7200,       // 2 uur afteltimer (2 * 60 * 60)
+      timerRunning: false,
+      timerInterval: null,
+
+      shotSecs: 30,
+      shotInterval: null,
+      shotRunning: false,
+
+      currentTurn: 'p1',
+      isMatchWon: false,
+      matchRecorded: false,
+
+      // Spelers inclusief overkoepelende seriesScore
+      p1: { name: 'Naam speler 1', score: 0, fouls: 0, eights: 0, seriesScore: 0 },
+      p2: { name: 'Naam speler 2', score: 0, fouls: 0, eights: 0, seriesScore: 0 },
+
+      undoHistory: [],
+      matchHistory: []
+    };
+
+    // --- Screen Wake Lock API (Houdt het scherm actief op mobiel/tablet) ---
+    let wakeLock = null;
+
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => {
+            wakeLock = null;
+          });
+          console.log('Screen Wake Lock is actief');
+        } catch (err) {
+          console.warn(`Wake Lock kon niet worden geactiveerd: ${err.name}, ${err.message}`);
+        }
+      }
+    }
+
+    // Vraag de Wake Lock opnieuw aan als de app weer zichtbaar wordt
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible' && (!wakeLock || wakeLock.released)) {
+        await requestWakeLock();
+      }
+    });
+
+    // Activeer ook direct bij de eerste gebruikersinteractie voor mobiele browsers die interactie vereisen
+    const triggerWakeLockOnUserGesture = () => {
+      if (!wakeLock || wakeLock.released) {
+        requestWakeLock();
+      }
+      document.removeEventListener('click', triggerWakeLockOnUserGesture);
+      document.removeEventListener('touchstart', triggerWakeLockOnUserGesture);
+    };
+    document.addEventListener('click', triggerWakeLockOnUserGesture, { once: true });
+    document.addEventListener('touchstart', triggerWakeLockOnUserGesture, { once: true });
+
+    // --- Fullscreen API Support ---
+    function isFullscreen() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    }
+
+    async function toggleFullscreen() {
+      try {
+        if (!isFullscreen()) {
+          const docEl = document.documentElement;
+          if (docEl.requestFullscreen) {
+            await docEl.requestFullscreen();
+          } else if (docEl.webkitRequestFullscreen) {
+            await docEl.webkitRequestFullscreen();
+          } else if (docEl.mozRequestFullScreen) {
+            await docEl.mozRequestFullScreen();
+          } else if (docEl.msRequestFullscreen) {
+            await docEl.msRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            await document.webkitExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            await document.mozCancelFullScreen();
+          } else if (document.msExitFullscreen) {
+            await document.msExitFullscreen();
+          }
+        }
+      } catch (err) {
+        console.warn('Fullscreen omschakeling niet toegestaan of ondersteund door de browser:', err);
+      }
+      playSound('click');
+      updateFullscreenIcon();
+    }
+
+    function updateFullscreenIcon() {
+      const icon = document.getElementById('fullscreen-icon');
+      if (!icon) return;
+      if (isFullscreen()) {
+        icon.textContent = 'fullscreen_exit';
+        icon.classList.add('text-primary');
+      } else {
+        icon.textContent = 'fullscreen';
+        icon.classList.remove('text-primary');
+      }
+    }
+
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+      document.addEventListener(evt, updateFullscreenIcon);
+    });
+
+    // --- Web Audio Synthesizer ---
+    let audioCtx = null;
+    function getAudio() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!App.sound) return;
+      try {
+        const ctx = getAudio();
+        if (!ctx) return;
+        if (type === 'hit') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1400, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(130, ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.4, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.08);
+        } else if (type === 'foul') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, ctx.currentTime);
+          osc.frequency.setValueAtTime(240, ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.22);
+        } else if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(750, ctx.currentTime);
+          gain.gain.setValueAtTime(0.18, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.04);
+        } else if (type === 'win') {
+          [523, 659, 784, 1046].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            const t = ctx.currentTime + idx * 0.11;
+            gain.gain.setValueAtTime(0.3, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.45);
+          });
+        }
+      } catch (err) {}
+    }
+
+    // --- Undo Management ---
+    function snapshotState() {
+      App.undoHistory.push({
+        p1: { ...App.p1 },
+        p2: { ...App.p2 },
+        currentTurn: App.currentTurn,
+        isMatchWon: App.isMatchWon,
+        matchRecorded: App.matchRecorded
+      });
+      if (App.undoHistory.length > 30) App.undoHistory.shift();
+      updateUndoButton();
+    }
+
+    function handleUndo() {
+      if (App.undoHistory.length === 0) return;
+      const prev = App.undoHistory.pop();
+      App.p1 = { ...prev.p1 };
+      App.p2 = { ...prev.p2 };
+      App.currentTurn = prev.currentTurn;
+      App.isMatchWon = prev.isMatchWon || false;
+      App.matchRecorded = prev.matchRecorded || false;
+      renderScores();
+      renderTurn();
+      updateUndoButton();
+      playSound('click');
+    }
+
+    function updateUndoButton() {
+      const btn = document.getElementById('undo-btn');
+      if (App.undoHistory.length > 0) {
+        btn.classList.remove('opacity-30', 'cursor-not-allowed');
+        btn.removeAttribute('disabled');
+      } else {
+        btn.classList.add('opacity-30', 'cursor-not-allowed');
+        btn.setAttribute('disabled', 'true');
+      }
+    }
+
+    // --- Tab Navigation ---
+    function navigateTo(tab) {
+      App.activeTab = tab;
+      const viewScore = document.getElementById('view-score');
+      const viewHistory = document.getElementById('view-history');
+      const tabScore = document.getElementById('tab-score');
+      const tabHistory = document.getElementById('tab-history');
+
+      if (tab === 'score') {
+        viewScore.classList.remove('hidden');
+        viewHistory.classList.add('hidden');
+        tabScore.className = "flex flex-col items-center justify-center gap-space-xs w-16 h-16 rounded-xl transition-all text-primary bg-surface-variant/50 cursor-pointer";
+        tabHistory.className = "flex flex-col items-center justify-center gap-space-xs w-16 h-16 text-on-surface-variant hover:text-on-surface rounded-xl transition-all cursor-pointer";
+      } else {
+        viewScore.classList.add('hidden');
+        viewHistory.classList.remove('hidden');
+        tabHistory.className = "flex flex-col items-center justify-center gap-space-xs w-16 h-16 rounded-xl transition-all text-primary bg-surface-variant/50 cursor-pointer";
+        tabScore.className = "flex flex-col items-center justify-center gap-space-xs w-16 h-16 text-on-surface-variant hover:text-on-surface rounded-xl transition-all cursor-pointer";
+        renderHistory();
+      }
+    }
+
+    // --- Timer (Afteltimer 2 uur) ---
+    function toggleTimer() {
+      const btnText = document.getElementById('timer-text');
+      const btnIcon = document.getElementById('timer-icon');
+      const pulseIcon = document.getElementById('timer-icon-pulse');
+
+      if (!App.timerRunning) {
+        // Als de timer al op 0 staat bij het starten, herstel dan eerst naar 7200
+        if (App.timerSecs <= 0) {
+          App.timerSecs = 7200;
+          renderTimerDisplay();
+        }
+
+        App.timerRunning = true;
+        btnText.textContent = 'Stop';
+        btnIcon.textContent = 'pause';
+        pulseIcon.classList.add('animate-pulse');
+        playSound('click');
+
+        App.timerInterval = setInterval(() => {
+          if (App.timerSecs > 0) {
+            App.timerSecs--;
+            renderTimerDisplay();
+          }
+
+          // Automatisch stoppen als 0 bereikt is
+          if (App.timerSecs <= 0) {
+            clearInterval(App.timerInterval);
+            App.timerRunning = false;
+            btnText.textContent = 'Start';
+            btnIcon.textContent = 'play_arrow';
+            pulseIcon.classList.remove('animate-pulse');
+            playSound('foul');
+            pauseShotClock();
+          }
+        }, 1000);
+
+        if (App.shotClockOn && !App.shotRunning) startShotClock();
+      } else {
+        App.timerRunning = false;
+        btnText.textContent = 'Start';
+        btnIcon.textContent = 'play_arrow';
+        pulseIcon.classList.remove('animate-pulse');
+        clearInterval(App.timerInterval);
+        pauseShotClock();
+      }
+    }
+
+    function resetTimer() {
+      App.timerRunning = false;
+      clearInterval(App.timerInterval);
+      App.timerSecs = 7200;
+      renderTimerDisplay();
+      document.getElementById('timer-text').textContent = 'Start';
+      document.getElementById('timer-icon').textContent = 'play_arrow';
+      document.getElementById('timer-icon-pulse').classList.remove('animate-pulse');
+      resetShotClock();
+      saveStateToStorage();
+    }
+
+    function formatTime(secs) {
+      const s = Math.max(0, Math.floor(secs));
+      const hours = Math.floor(s / 3600);
+      const minutes = Math.floor((s % 3600) / 60);
+      const seconds = s % 60;
+
+      const mm = minutes.toString().padStart(2, '0');
+      const ss = seconds.toString().padStart(2, '0');
+
+      if (hours > 0) {
+        const hh = hours.toString().padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+      }
+      return `${mm}:${ss}`;
+    }
+
+    function renderTimerDisplay() {
+      document.getElementById('match-timer').textContent = formatTime(App.timerSecs);
+    }
+
+    // --- Shot Clock ---
+    function startShotClock() {
+      if (!App.shotClockOn) return;
+      App.shotRunning = true;
+      clearInterval(App.shotInterval);
+      App.shotInterval = setInterval(() => {
+        if (App.shotSecs > 0) {
+          App.shotSecs--;
+          document.getElementById('shot-clock-val').textContent = `${App.shotSecs}s`;
+          if (App.shotSecs <= 5) playSound('click');
+        } else {
+          clearInterval(App.shotInterval);
+          App.shotRunning = false;
+          playSound('foul');
+        }
+      }, 1000);
+    }
+
+    function pauseShotClock() {
+      App.shotRunning = false;
+      clearInterval(App.shotInterval);
+    }
+
+    function resetShotClock() {
+      App.shotSecs = 30;
+      document.getElementById('shot-clock-val').textContent = '30s';
+      if (App.timerRunning && App.shotClockOn) startShotClock();
+    }
+
+    function extendShotClock() {
+      App.shotSecs += 30;
+      document.getElementById('shot-clock-val').textContent = `${App.shotSecs}s`;
+      playSound('click');
+    }
+
+    // --- Adjust Scores & Subs ---
+    function adjustScore(player, amount) {
+      snapshotState();
+      const current = App[player].score;
+      const next = Math.max(0, current + amount);
+      App[player].score = next;
+
+      const scoreEl = document.getElementById(`${player}-score`);
+      scoreEl.classList.remove('score-pop');
+      void scoreEl.offsetWidth;
+      scoreEl.classList.add('score-pop');
+
+      playSound(amount > 0 ? 'hit' : 'click');
+      renderScores();
+      resetShotClock();
+      saveStateToStorage();
+
+      if (App.raceTo > 0 && next >= App.raceTo && amount > 0) {
+        triggerWin(player);
+      }
+    }
+
+    function adjustSub(player, type, amount) {
+      snapshotState();
+      const current = App[player][type];
+      App[player][type] = Math.max(0, current + amount);
+      playSound(type === 'fouls' && amount > 0 ? 'foul' : 'click');
+      renderScores();
+      saveStateToStorage();
+    }
+
+    function renderScores() {
+      document.getElementById('p1-score').textContent = App.p1.score;
+      document.getElementById('p2-score').textContent = App.p2.score;
+      document.getElementById('p1-fouls').textContent = App.p1.fouls;
+      document.getElementById('p2-fouls').textContent = App.p2.fouls;
+      document.getElementById('p1-eights').textContent = App.p1.eights;
+      document.getElementById('p2-eights').textContent = App.p2.eights;
+      
+      renderSeriesBadges();
+      renderRaceDots();
+    }
+
+    // Toon de kleinere overkoepelende score teller boven de frame-score
+    function renderSeriesBadges() {
+      const p1Badge = document.getElementById('p1-series-badge');
+      const p2Badge = document.getElementById('p2-series-badge');
+      const modePill = document.getElementById('mode-pill');
+      const modalResetSeriesBtn = document.getElementById('modal-reset-series-btn');
+
+      if (App.gameMode === 'Vrij Spel') {
+        p1Badge.classList.add('hidden');
+        p2Badge.classList.add('hidden');
+        if (modePill) modePill.classList.add('hidden');
+        if (modalResetSeriesBtn) modalResetSeriesBtn.classList.add('hidden');
+      } else {
+        p1Badge.classList.remove('hidden');
+        p2Badge.classList.remove('hidden');
+        document.getElementById('p1-series-text').textContent = `${App.gameMode}: ${App.p1.seriesScore}`;
+        document.getElementById('p2-series-text').textContent = `${App.gameMode}: ${App.p2.seriesScore}`;
+
+        if (modePill) {
+          modePill.classList.remove('hidden');
+          modePill.textContent = App.gameMode;
+        }
+        if (modalResetSeriesBtn) {
+          modalResetSeriesBtn.classList.remove('hidden');
+        }
+      }
+    }
+
+    function renderRaceDots() {
+      const p1Dots = document.getElementById('p1-dots');
+      const p2Dots = document.getElementById('p2-dots');
+      const pill = document.getElementById('race-pill');
+
+      if (!App.raceTo || App.raceTo <= 0) {
+        p1Dots.innerHTML = '';
+        p2Dots.innerHTML = '';
+        pill.classList.add('hidden');
+        return;
+      }
+
+      pill.classList.remove('hidden');
+      pill.textContent = `Race ${App.raceTo}`;
+
+      const total = Math.min(App.raceTo, 10);
+      function makeDots(score, lead) {
+        let h = '';
+        for (let i = 1; i <= total; i++) {
+          const filled = i <= score;
+          const col = filled ? (lead ? 'bg-primary' : 'bg-secondary') : 'bg-surface-variant';
+          h += `<span class="w-1.5 h-1.5 rounded-full ${col}"></span>`;
+        }
+        return h;
+      }
+      p1Dots.innerHTML = makeDots(App.p1.score, App.p1.score >= App.p2.score);
+      p2Dots.innerHTML = makeDots(App.p2.score, App.p2.score >= App.p1.score);
+    }
+
+    // --- Turn Switching ---
+    function setTurn(player) {
+      if (App.currentTurn !== player) {
+        snapshotState();
+        App.currentTurn = player;
+        renderTurn();
+        playSound('click');
+        resetShotClock();
+        saveStateToStorage();
+      }
+    }
+
+    function switchTurn() {
+      setTurn(App.currentTurn === 'p1' ? 'p2' : 'p1');
+    }
+
+    function renderTurn() {
+      const p1Card = document.getElementById('p1-card');
+      const p2Card = document.getElementById('p2-card');
+      const p1Dot = document.getElementById('p1-dot');
+      const p2Dot = document.getElementById('p2-dot');
+      const p1Score = document.getElementById('p1-score');
+      const p2Score = document.getElementById('p2-score');
+
+      if (App.currentTurn === 'p1') {
+        p1Card.className = "bg-surface-container-low p-space-md rounded-xl relative transition-all duration-300 ring-1 ring-primary/40 bg-gradient-to-r from-primary/5 via-surface-container-low to-surface-container-low mb-space-md cursor-pointer";
+        p1Dot.className = "w-3 h-3 rounded-full bg-primary animate-pulse transition-all";
+        p1Score.className = "font-display-score-mobile text-display-score-mobile text-primary font-bold select-none transition-all duration-150";
+
+        p2Card.className = "bg-surface-container-low p-space-md rounded-xl relative transition-all duration-300 ring-1 ring-surface-variant cursor-pointer";
+        p2Dot.className = "w-3 h-3 rounded-full bg-transparent transition-all";
+        p2Score.className = "font-display-score-mobile text-display-score-mobile text-secondary font-bold select-none transition-all duration-150";
+      } else {
+        p2Card.className = "bg-surface-container-low p-space-md rounded-xl relative transition-all duration-300 ring-1 ring-primary/40 bg-gradient-to-r from-primary/5 via-surface-container-low to-surface-container-low cursor-pointer";
+        p2Dot.className = "w-3 h-3 rounded-full bg-primary animate-pulse transition-all";
+        p2Score.className = "font-display-score-mobile text-display-score-mobile text-primary font-bold select-none transition-all duration-150";
+
+        p1Card.className = "bg-surface-container-low p-space-md rounded-xl relative transition-all duration-300 ring-1 ring-surface-variant mb-space-md cursor-pointer";
+        p1Dot.className = "w-3 h-3 rounded-full bg-transparent transition-all";
+        p1Score.className = "font-display-score-mobile text-display-score-mobile text-secondary font-bold select-none transition-all duration-150";
+      }
+    }
+
+function updatePlayerName(player, val) {
+      // Bepaal de standaardnaam op basis van wie er aan de beurt is
+      if (player === 'p1') {
+        App[player].name = val.trim() || 'Naam speler 1';
+      } else {
+        App[player].name = val.trim() || 'Naam speler 2';
+      }
+      
+      document.getElementById(player + '-name').value = App[player].name;
+      renderScores();
+      saveStateToStorage();
+    }
+
+    // --- Winner & Finish Match Logic ---
+    function triggerWin(winnerKey) {
+      playSound('win');
+      App.isMatchWon = true;
+
+      // Verhoog overkoepelende score als Competitie of Toernooi actief is
+      const isSeriesMode = App.gameMode !== 'Vrij Spel';
+      if (isSeriesMode) {
+        App[winnerKey].seriesScore++;
+        saveStateToStorage();
+      }
+
+      renderScores();
+
+      const winnerName = App[winnerKey].name;
+      const winnerBadge = document.getElementById('winner-badge');
+      const winnerTitle = document.getElementById('winner-title');
+      const winnerScoreLabel = document.getElementById('winner-score-label');
+      const winnerScore = document.getElementById('winner-score');
+      const winnerSeriesStanding = document.getElementById('winner-series-standing');
+      const rematchBtn = document.getElementById('winner-rematch-btn');
+      const newSeriesBtn = document.getElementById('winner-new-series-btn');
+
+      // Check of een speler de overkoepelende serie wint (5 punten)
+      const hasWonSeries = isSeriesMode && App[winnerKey].seriesScore >= App.seriesTarget;
+
+      if (hasWonSeries) {
+        // Uiteindelijke serie winnaar!
+        winnerBadge.textContent = `${App.gameMode} Finale`;
+        winnerTitle.textContent = `${App.gameMode} Winnaar!`;
+        winnerScoreLabel.textContent = `Eindstand ${App.gameMode}`;
+        winnerScore.textContent = `${App.p1.seriesScore} - ${App.p2.seriesScore}`;
+
+        winnerSeriesStanding.classList.remove('hidden');
+        winnerSeriesStanding.textContent = `${winnerName} wint de serie met 5 overwinningen!`;
+
+        rematchBtn.textContent = 'Volgende Losse Wedstrijd';
+        newSeriesBtn.classList.remove('hidden');
+        newSeriesBtn.textContent = `Nieuwe ${App.gameMode} Beginnen`;
+      } else if (isSeriesMode) {
+        // Losse wedstrijd binnen de serie gewonnen
+        winnerBadge.textContent = `Match Winnaar (${App.gameMode})`;
+        winnerTitle.textContent = `${winnerName} Wint!`;
+        winnerScoreLabel.textContent = 'Eindstand Match';
+        winnerScore.textContent = `${App.p1.score} - ${App.p2.score}`;
+
+        winnerSeriesStanding.classList.remove('hidden');
+        winnerSeriesStanding.textContent = `${App.gameMode} Stand: ${App.p1.name} ${App.p1.seriesScore} - ${App.p2.seriesScore} ${App.p2.name} (Doel: 5)`;
+
+        rematchBtn.textContent = 'Volgende Wedstrijd in Serie';
+        newSeriesBtn.classList.remove('hidden');
+        newSeriesBtn.textContent = `Reset ${App.gameMode} Stand`;
+      } else {
+        // Vrij Spel
+        winnerBadge.textContent = 'Wedstrijd Winnaar';
+        winnerTitle.textContent = `${winnerName} Wint!`;
+        winnerScoreLabel.textContent = 'Eindstand';
+        winnerScore.textContent = `${App.p1.score} - ${App.p2.score}`;
+
+        winnerSeriesStanding.classList.add('hidden');
+        rematchBtn.textContent = 'Nieuwe Wedstrijd (Rematch)';
+        newSeriesBtn.classList.add('hidden');
+      }
+
+      document.getElementById('winner-details').innerHTML = `
+        <span class="material-symbols-outlined text-[14px]">timer</span>
+        <span>Resterend: ${formatTime(App.timerSecs)} • ${App.discipline}</span>
+      `;
+
+      popConfetti();
+      document.getElementById('modal-winner').classList.remove('hidden');
+    }
+
+    function popConfetti() {
+      const box = document.getElementById('confetti-box');
+      box.innerHTML = '';
+      const colors = ['#ffb2ba', '#ef6078', '#e2e2e3', '#38393a', '#ffd9dc'];
+      for (let i = 0; i < 40; i++) {
+        const div = document.createElement('div');
+        div.className = 'confetti-piece';
+        div.style.left = `${Math.random() * 100}%`;
+        div.style.top = `${Math.random() * 20}%`;
+        div.style.width = `${Math.random() * 8 + 4}px`;
+        div.style.height = `${Math.random() * 8 + 4}px`;
+        div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        div.style.animationDelay = `${Math.random() * 0.4}s`;
+        box.appendChild(div);
+      }
+    }
+
+    function closeWinnerModal() {
+      document.getElementById('modal-winner').classList.add('hidden');
+    }
+
+    function promptEndMatch() {
+      App.matchRecorded = false;
+      const winner = App.p1.score >= App.p2.score ? 'p1' : 'p2';
+      triggerWin(winner);
+    }
+
+    function saveAndGoToHistory() {
+      recordMatch();
+      closeWinnerModal();
+      navigateTo('history');
+    }
+
+    function startRematch() {
+      recordMatch();
+      closeWinnerModal();
+      App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
+      App.p2.score = 0; App.p2.fouls = 0; App.p2.eights = 0;
+      App.undoHistory = [];
+      App.isMatchWon = false;
+      App.matchRecorded = false;
+      resetTimer();
+      renderScores();
+      renderTurn();
+      updateUndoButton();
+      playSound('hit');
+    }
+
+    // Nieuwe serie beginnen: reset de overkoepelende stand naar 0
+    function startNewSeries() {
+      recordMatch();
+      App.p1.seriesScore = 0;
+      App.p2.seriesScore = 0;
+      App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
+      App.p2.score = 0; App.p2.fouls = 0; App.p2.eights = 0;
+      App.undoHistory = [];
+      App.isMatchWon = false;
+      App.matchRecorded = false;
+      saveStateToStorage();
+      resetTimer();
+      renderScores();
+      renderTurn();
+      updateUndoButton();
+      closeWinnerModal();
+      playSound('hit');
+    }
+
+    function resetSeries() {
+      if (confirm(`Weet je zeker dat je de overkoepelende stand voor ${App.gameMode} wilt resetten naar 0 - 0?`)) {
+        App.p1.seriesScore = 0;
+        App.p2.seriesScore = 0;
+        saveStateToStorage();
+        renderScores();
+        const settingsStand = document.getElementById('settings-series-stand');
+        if (settingsStand) settingsStand.textContent = '0 - 0';
+        playSound('click');
+      }
+    }
+
+    // Match vastleggen in History (met type spel en seriestand)
+    function recordMatch() {
+      if (App.matchRecorded) return;
+      App.matchRecorded = true;
+
+      const seriesStandSnapshot = `${App.p1.seriesScore} - ${App.p2.seriesScore}`;
+
+      const match = {
+        id: 'm_' + Date.now(),
+        date: new Date().toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+        discipline: App.discipline,
+        raceTo: App.raceTo,
+        gameMode: App.gameMode || 'Vrij Spel',
+        seriesStand: seriesStandSnapshot,
+        p1Series: App.p1.seriesScore,
+        p2Series: App.p2.seriesScore,
+        durationFormatted: formatTime(App.timerSecs),
+        p1: { ...App.p1 },
+        p2: { ...App.p2 },
+        winner: App.p1.score >= App.p2.score ? 'p1' : 'p2'
+      };
+      App.matchHistory.unshift(match);
+      try {
+        localStorage.setItem('pool_history_records', JSON.stringify(App.matchHistory));
+      } catch (e) {}
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem('pool_history_records');
+        if (raw) App.matchHistory = JSON.parse(raw);
+      } catch (e) {
+        App.matchHistory = [];
+      }
+    }
+
+    // Persist active settings, series scores AND live match state
+    function saveStateToStorage() {
+      try {
+        const state = {
+          gameMode: App.gameMode,
+          discipline: App.discipline,
+          raceTo: App.raceTo,
+          currentTurn: App.currentTurn,
+          timerSecs: App.timerSecs,
+          p1: {
+            name: App.p1.name,
+            score: App.p1.score,
+            fouls: App.p1.fouls,
+            eights: App.p1.eights,
+            seriesScore: App.p1.seriesScore
+          },
+          p2: {
+            name: App.p2.name,
+            score: App.p2.score,
+            fouls: App.p2.fouls,
+            eights: App.p2.eights,
+            seriesScore: App.p2.seriesScore
+          }
+        };
+        localStorage.setItem('pool_app_state', JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function loadAppState() {
+      try {
+        const raw = localStorage.getItem('pool_app_state');
+        if (raw) {
+          const state = JSON.parse(raw);
+          if (state.gameMode) App.gameMode = state.gameMode;
+          if (state.discipline) App.discipline = state.discipline;
+          if (state.raceTo !== undefined) App.raceTo = state.raceTo;
+          if (state.currentTurn) App.currentTurn = state.currentTurn;
+          if (state.timerSecs !== undefined) App.timerSecs = state.timerSecs;
+          if (state.p1) {
+            if (state.p1.name) App.p1.name = state.p1.name;
+            if (state.p1.score !== undefined) App.p1.score = state.p1.score;
+            if (state.p1.fouls !== undefined) App.p1.fouls = state.p1.fouls;
+            if (state.p1.eights !== undefined) App.p1.eights = state.p1.eights;
+            if (state.p1.seriesScore !== undefined) App.p1.seriesScore = state.p1.seriesScore;
+          }
+          if (state.p2) {
+            if (state.p2.name) App.p2.name = state.p2.name;
+            if (state.p2.score !== undefined) App.p2.score = state.p2.score;
+            if (state.p2.fouls !== undefined) App.p2.fouls = state.p2.fouls;
+            if (state.p2.eights !== undefined) App.p2.eights = state.p2.eights;
+            if (state.p2.seriesScore !== undefined) App.p2.seriesScore = state.p2.seriesScore;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // --- Reset Confirmation ---
+    function promptResetMatch() {
+      document.getElementById('modal-reset').classList.remove('hidden');
+    }
+    function closeResetModal() {
+      document.getElementById('modal-reset').classList.add('hidden');
+    }
+    function executeResetMatch() {
+      closeResetModal();
+      snapshotState();
+      App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
+      App.p2.score = 0; App.p2.fouls = 0; App.p2.eights = 0;
+      App.isMatchWon = false;
+      App.matchRecorded = false;
+      resetTimer();
+      renderScores();
+      renderTurn();
+      saveStateToStorage();
+      playSound('click');
+    }
+
+    // --- History View Rendering ---
+    function renderHistory() {
+      const container = document.getElementById('history-items');
+      const empty = document.getElementById('history-empty');
+      const clearBtn = document.getElementById('clear-history-btn');
+
+      const count = App.matchHistory.length;
+      document.getElementById('stat-total-matches').textContent = `${count} ${count === 1 ? 'Wedstrijd' : 'Wedstrijden'}`;
+
+      let p1Wins = 0, p2Wins = 0, totalFrames = 0;
+      App.matchHistory.forEach(m => {
+        if (m.winner === 'p1') p1Wins++;
+        else p2Wins++;
+        totalFrames += (m.p1.score + m.p2.score);
+      });
+
+      document.getElementById('stat-p1-label').textContent = App.p1.name;
+      document.getElementById('stat-p2-label').textContent = App.p2.name;
+      document.getElementById('stat-p1-wins').textContent = p1Wins;
+      document.getElementById('stat-p2-wins').textContent = p2Wins;
+      document.getElementById('stat-total-frames').textContent = totalFrames;
+
+      const p1Pct = count > 0 ? Math.round((p1Wins / count) * 100) : 0;
+      const p2Pct = count > 0 ? Math.round((p2Wins / count) * 100) : 0;
+      document.getElementById('stat-p1-winrate').textContent = `${p1Pct}% win`;
+      document.getElementById('stat-p2-winrate').textContent = `${p2Pct}% win`;
+
+      if (count === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        clearBtn.classList.add('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      clearBtn.classList.remove('hidden');
+
+      container.innerHTML = App.matchHistory.map(m => {
+        const isP1 = m.winner === 'p1';
+        const mode = m.gameMode || 'Vrij Spel';
+
+        // Styling van de Type Spel chip
+        let modeChipStyle = 'bg-surface-variant text-on-surface-variant border-surface-variant/40';
+        if (mode === 'Competitie') {
+          modeChipStyle = 'bg-primary/15 text-primary border-primary/30';
+        } else if (mode === 'Toernooi') {
+          modeChipStyle = 'bg-amber-400/15 text-amber-300 border-amber-400/30';
+        }
+
+        const isSeries = mode !== 'Vrij Spel';
+
+        return `
+          <div class="bg-surface-container-low p-space-md rounded-xl border border-surface-variant/40 hover:border-primary/40 transition-all shadow-sm">
+            <div class="flex items-center justify-between text-xs text-on-surface-variant mb-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <!-- Type Spel Chip -->
+                
+                <!-- Overkoepelende stand subtiel weergeven -->
+                ${isSeries && m.seriesStand ? `
+                  <span>•</span>
+                  <span class="text-[11px] font-mono text-on-surface bg-surface-container px-1.5 py-0.5 rounded border border-surface-variant/40" title="Seriestand na deze match">
+                    Stand ${m.seriesStand}
+                  </span>
+                ` : ''}
+                <span>•</span>
+                <span>${m.date}</span>
+              </div>
+              <div class="flex items-center gap-1 font-mono shrink-0 ml-2">
+                <span class="material-symbols-outlined text-[14px]">timer</span>
+                <span>${m.durationFormatted}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between py-2 border-y border-surface-variant/20 my-1">
+              <div class="flex items-center gap-2 flex-1">
+                <span class="w-2.5 h-2.5 rounded-full ${isP1 ? 'bg-primary animate-pulse' : 'bg-surface-variant'}"></span>
+                <span class="font-semibold text-body-sm ${isP1 ? 'text-primary' : 'text-on-surface'}">${m.p1.name}</span>
+                ${isP1 ? '<span class="text-[9px] bg-primary/20 text-primary font-bold px-1.5 py-0.5 rounded uppercase">Win</span>' : ''}
+              </div>
+
+              <div class="font-mono text-headline-md font-bold px-3">
+                <span class="${isP1 ? 'text-primary' : 'text-secondary'}">${m.p1.score}</span>
+                <span class="text-on-surface-variant px-1">-</span>
+                <span class="${!isP1 ? 'text-primary' : 'text-secondary'}">${m.p2.score}</span>
+              </div>
+
+              <div class="flex items-center justify-end gap-2 flex-1">
+                ${!isP1 ? '<span class="text-[9px] bg-primary/20 text-primary font-bold px-1.5 py-0.5 rounded uppercase">Win</span>' : ''}
+                <span class="font-semibold text-body-sm ${!isP1 ? 'text-primary' : 'text-on-surface'}">${m.p2.name}</span>
+                <span class="w-2.5 h-2.5 rounded-full ${!isP1 ? 'bg-primary animate-pulse' : 'bg-surface-variant'}"></span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 text-xs text-on-surface-variant">
+              <div class="flex items-center gap-3">
+                <span>Cue balls: ${m.p1.fouls} vs ${m.p2.fouls}</span>
+                <span>•</span>
+                <span>8-Balls: ${m.p1.eights} vs ${m.p2.eights}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="text-primary hover:underline font-medium text-xs flex items-center gap-1" onclick="rematch('${m.id}')">
+                  <span class="material-symbols-outlined text-[14px]">replay</span>
+                  <span>Rematch</span>
+                </button>
+                <button class="text-on-surface-variant hover:text-error transition-colors p-1" onclick="deleteMatch('${m.id}')">
+                  <span class="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function rematch(id) {
+      const m = App.matchHistory.find(i => i.id === id);
+      if (!m) return;
+      App.p1.name = m.p1.name;
+      App.p2.name = m.p2.name;
+      App.discipline = m.discipline;
+      App.raceTo = m.raceTo;
+      if (m.gameMode) App.gameMode = m.gameMode;
+      document.getElementById('p1-name').value = m.p1.name;
+      document.getElementById('p2-name').value = m.p2.name;
+      App.p1.score = 0; App.p1.fouls = 0; App.p1.eights = 0;
+      App.p2.score = 0; App.p2.fouls = 0; App.p2.eights = 0;
+      App.undoHistory = [];
+      App.isMatchWon = false;
+      App.matchRecorded = false;
+      resetTimer();
+      renderScores();
+      renderTurn();
+      updateUndoButton();
+      navigateTo('score');
+      playSound('hit');
+    }
+
+    function deleteMatch(id) {
+    if (confirm('Weet je zeker dat je deze specifieke wedstrijd wilt verwijderen?')) {
+      // Filter de wedstrijd uit de geschiedenis
+      App.matchHistory = App.matchHistory.filter(m => m.id !== id);
+      
+      // Sla de bijgewerkte geschiedenis op
+      try {
+        localStorage.setItem('pool_history_records', JSON.stringify(App.matchHistory));
+      } catch (e) {}
+      
+      // Werk het scherm bij
+      renderHistory();
+    }
+  } 
+
+// --- History Modal Logic ---
+    function confirmClearHistory() {
+      // Open onze custom modal in plaats van window.confirm() te gebruiken
+      document.getElementById('modal-clear-history').classList.remove('hidden');
+    }
+
+    function closeClearHistoryModal() {
+      document.getElementById('modal-clear-history').classList.add('hidden');
+    }
+
+    function executeClearHistory() {
+      // Voer de daadwerkelijke wis-actie uit
+      App.matchHistory = [];
+      try {
+        localStorage.removeItem('pool_history_records');
+      } catch (e) {
+        console.warn('Kon geschiedenis niet wissen uit localStorage', e);
+      }
+      renderHistory();
+      closeClearHistoryModal();
+    }
+
+    // --- Settings Modal ---
+    function openSettingsModal() {
+  
+      document.getElementById('settings-shot-clock').checked = App.shotClockOn;
+      document.getElementById('settings-audio').checked = App.sound;
+
+      // Update Type Spel knoppen
+      document.querySelectorAll('.mode-btn').forEach(b => {
+        if (b.dataset.val === App.gameMode) {
+          b.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all mode-btn bg-primary text-on-primary border-primary";
+        } else {
+          b.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all mode-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface";
+        }
+      });
+
+      // Update Discipline knoppen
+      document.querySelectorAll('.disc-btn').forEach(b => {
+        if (b.dataset.val === App.discipline) {
+          b.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all disc-btn bg-primary text-on-primary border-primary";
+        } else {
+          b.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all disc-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface";
+        }
+      });
+
+      // Update Race knoppen
+      document.querySelectorAll('.r-btn').forEach(b => {
+        if (parseInt(b.dataset.val) === App.raceTo) {
+          b.className = "py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-primary text-on-primary border-primary";
+        } else {
+          b.className = "py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface";
+        }
+      });
+
+      // Toon overkoepelende stand in settings
+      const seriesInfo = document.getElementById('settings-series-info');
+      if (seriesInfo) {
+        if (App.gameMode !== 'Vrij Spel') {
+          seriesInfo.classList.remove('hidden');
+          document.getElementById('settings-series-stand').textContent = `${App.p1.name} ${App.p1.seriesScore} - ${App.p2.seriesScore} ${App.p2.name}`;
+        } else {
+          seriesInfo.classList.add('hidden');
+        }
+      }
+
+      document.getElementById('modal-settings').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('modal-settings').classList.add('hidden');
+    }
+
+    function saveSettings() {
+      document.getElementById('p1-name').value = App.p1.name;
+      document.getElementById('p2-name').value = App.p2.name;
+
+      App.shotClockOn = document.getElementById('settings-shot-clock').checked;
+      App.sound = document.getElementById('settings-audio').checked;
+
+      const scWidget = document.getElementById('shot-clock-widget');
+      if (App.shotClockOn) scWidget.classList.remove('hidden');
+      else {
+        scWidget.classList.add('hidden');
+        pauseShotClock();
+      }
+
+      renderScores();
+      renderRaceDots();
+      saveStateToStorage();
+      closeSettingsModal();
+      playSound('click');
+    }
+
+    function toggleSound() {
+      App.sound = !App.sound;
+      const icon = document.getElementById('sound-icon');
+      icon.textContent = App.sound ? 'volume_up' : 'volume_off';
+      icon.className = App.sound ? 'material-symbols-outlined text-[19px] text-primary' : 'material-symbols-outlined text-[19px] text-on-surface-variant';
+      if (App.sound) playSound('hit');
+    }
+
+    // --- Init ---
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAppState();
+      loadHistory();
+
+      // Screen Wake Lock activeren
+      requestWakeLock();
+
+      // Type Spel knoppen click event
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.mode-btn').forEach(b => {
+            b.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all mode-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface";
+          });
+          btn.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all mode-btn bg-primary text-on-primary border-primary";
+          App.gameMode = btn.dataset.val;
+
+          const seriesInfo = document.getElementById('settings-series-info');
+          if (seriesInfo) {
+            if (App.gameMode !== 'Vrij Spel') {
+              seriesInfo.classList.remove('hidden');
+              document.getElementById('settings-series-stand').textContent = `${App.p1.name} ${App.p1.seriesScore} - ${App.p2.seriesScore} ${App.p2.name}`;
+            } else {
+              seriesInfo.classList.add('hidden');
+            }
+          }
+        });
+      });
+
+      // Spel discipline knoppen click event
+      document.querySelectorAll('.disc-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.disc-btn').forEach(b => {
+            b.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all disc-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface";
+          });
+          btn.className = "py-2 px-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all disc-btn bg-primary text-on-primary border-primary";
+          App.discipline = btn.dataset.val;
+        });
+      });
+
+      // Race to knoppen click event
+      document.querySelectorAll('.r-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.r-btn').forEach(b => {
+            b.className = "py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-surface-container-low text-on-surface-variant border-surface-variant hover:text-on-surface";
+          });
+          btn.className = "py-2 rounded-lg text-xs font-semibold uppercase text-center border transition-all r-btn bg-primary text-on-primary border-primary";
+          App.raceTo = parseInt(btn.dataset.val);
+        });
+      });
+
+      document.getElementById('p1-name').value = App.p1.name;
+      document.getElementById('p2-name').value = App.p2.name;
+
+      renderTimerDisplay();
+      renderScores();
+      renderTurn();
+      updateFullscreenIcon();
+    });
+  </script>
+</body>
+</html>
