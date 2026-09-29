@@ -434,6 +434,10 @@
             <div class="text-headline-md font-bold text-secondary font-mono" id="stat-p2-wins">0</div>
             <div class="text-[10px] text-on-surface-variant" id="stat-p2-winrate">0% win</div>
           </div>
+          <div class="col-span-3 bg-surface-container/60 px-3 py-2 rounded-lg flex items-center justify-between">
+            <div class="text-[11px] text-on-surface-variant uppercase tracking-wider">Gelijkspel</div>
+            <div class="text-headline-md font-bold text-on-surface font-mono" id="stat-draws">0</div>
+          </div>
         </div>
       </div>
 
@@ -1171,12 +1175,14 @@ function updatePlayerName(player, val) {
     // restoring = true: het finale-scherm wordt alleen opnieuw getoond na het openen van de app
     // (geen geluid, geen extra punt erbij, geen opnieuw opslaan)
     function triggerWin(winnerKey, restoring = false) {
-      if (!restoring) playSound('win');
+      const isDraw = winnerKey === 'draw';
+      if (!restoring) playSound(isDraw ? 'click' : 'win');
       App.isMatchWon = true;
 
       // Verhoog overkoepelende score als Competitie of Toernooi actief is
+      // (bij een gelijkspel krijgt niemand een punt en kan de serie ook niet afgelopen zijn)
       const isSeriesMode = App.gameMode !== 'Vrij Spel';
-      if (isSeriesMode && !restoring) {
+      if (isSeriesMode && !restoring && !isDraw) {
         App[winnerKey].seriesScore++;
         // Competitie afgelopen? Dan de vlag zetten en meteen bewaren
         if (App.gameMode === 'Competitie' && App[winnerKey].seriesScore >= App.seriesTarget) {
@@ -1187,7 +1193,8 @@ function updatePlayerName(player, val) {
 
       renderScores();
 
-      const winnerName = App[winnerKey].name;
+      const winnerName = isDraw ? '' : App[winnerKey].name;
+      const winnerIconWrap = document.getElementById('winner-icon-wrap');
       const winnerBadge = document.getElementById('winner-badge');
       const winnerTitle = document.getElementById('winner-title');
       const winnerScoreLabel = document.getElementById('winner-score-label');
@@ -1198,9 +1205,32 @@ function updatePlayerName(player, val) {
       const continueBtn = document.getElementById('winner-continue-btn');
 
       // Check of een speler de overkoepelende serie wint (seriesTarget punten)
-      const hasWonSeries = isSeriesMode && App[winnerKey].seriesScore >= App.seriesTarget;
+      const hasWonSeries = !isDraw && isSeriesMode && App[winnerKey].seriesScore >= App.seriesTarget;
 
-      if (hasWonSeries) {
+      // Icoon: trofee bij een winnaar, handdruk bij een gelijkspel
+      winnerIconWrap.innerHTML = `<span class="material-symbols-outlined text-[36px]">${isDraw ? 'handshake' : 'emoji_events'}</span>`;
+
+      if (isDraw) {
+        // Gelijkspel: geen winnaar, geen punt in de serie
+        winnerBadge.textContent = 'Gelijkspel';
+        winnerTitle.textContent = 'Gelijkspel!';
+        winnerScoreLabel.textContent = isSeriesMode ? 'Eindstand Match' : 'Eindstand';
+        winnerScore.textContent = `${App.p1.score} - ${App.p2.score}`;
+
+        if (isSeriesMode) {
+          winnerSeriesStanding.classList.remove('hidden');
+          winnerSeriesStanding.textContent = `${App.gameMode} Stand: ${App.p1.name} ${App.p1.seriesScore} - ${App.p2.seriesScore} ${App.p2.name} (Doel: ${App.seriesTarget})`;
+          rematchBtn.textContent = 'Volgende Wedstrijd in Serie';
+          newSeriesBtn.classList.remove('hidden');
+          newSeriesBtn.textContent = `Reset ${App.gameMode} Stand`;
+        } else {
+          winnerSeriesStanding.classList.add('hidden');
+          rematchBtn.textContent = 'Nieuwe Wedstrijd (Rematch)';
+          newSeriesBtn.classList.add('hidden');
+        }
+        rematchBtn.classList.remove('hidden');
+        continueBtn.classList.remove('hidden');
+      } else if (hasWonSeries) {
         // Uiteindelijke serie winnaar!
         winnerBadge.textContent = `${App.gameMode} Finale`;
         winnerTitle.textContent = `${App.gameMode} Winnaar!`;
@@ -1249,7 +1279,11 @@ function updatePlayerName(player, val) {
         <span>Resterend: ${formatTime(App.timerSecs)} • ${App.discipline}</span>
       `;
 
-      popConfetti();
+      if (isDraw) {
+        document.getElementById('confetti-box').innerHTML = ''; // geen confetti bij gelijkspel
+      } else {
+        popConfetti();
+      }
       document.getElementById('modal-winner').classList.remove('hidden');
     }
 
@@ -1276,10 +1310,16 @@ function updatePlayerName(player, val) {
       document.getElementById('modal-winner').classList.add('hidden');
     }
 
+    // Geeft 'p1', 'p2' of 'draw' terug op basis van de huidige scores
+    function getMatchResult() {
+      if (App.p1.score > App.p2.score) return 'p1';
+      if (App.p2.score > App.p1.score) return 'p2';
+      return 'draw';
+    }
+
     function promptEndMatch() {
       App.matchRecorded = false;
-      const winner = App.p1.score >= App.p2.score ? 'p1' : 'p2';
-      triggerWin(winner);
+      triggerWin(getMatchResult());
     }
 
     function saveAndGoToHistory() {
@@ -1369,7 +1409,7 @@ function updatePlayerName(player, val) {
         durationFormatted: formatTime(App.timerSecs),
         p1: { ...App.p1 },
         p2: { ...App.p2 },
-        winner: App.p1.score >= App.p2.score ? 'p1' : 'p2'
+        winner: getMatchResult()
       };
       App.matchHistory.unshift(match);
       try {
@@ -1474,10 +1514,11 @@ function updatePlayerName(player, val) {
       const count = App.matchHistory.length;
       document.getElementById('stat-total-matches').textContent = `${count} ${count === 1 ? 'Wedstrijd' : 'Wedstrijden'}`;
 
-      let p1Wins = 0, p2Wins = 0, totalFrames = 0;
+      let p1Wins = 0, p2Wins = 0, draws = 0, totalFrames = 0;
       App.matchHistory.forEach(m => {
         if (m.winner === 'p1') p1Wins++;
-        else p2Wins++;
+        else if (m.winner === 'p2') p2Wins++;
+        else if (m.winner === 'draw') draws++;
         totalFrames += (m.p1.score + m.p2.score);
       });
 
@@ -1486,6 +1527,7 @@ function updatePlayerName(player, val) {
       document.getElementById('stat-p1-wins').textContent = p1Wins;
       document.getElementById('stat-p2-wins').textContent = p2Wins;
       document.getElementById('stat-total-frames').textContent = totalFrames;
+      document.getElementById('stat-draws').textContent = draws;
 
       const p1Pct = count > 0 ? Math.round((p1Wins / count) * 100) : 0;
       const p2Pct = count > 0 ? Math.round((p2Wins / count) * 100) : 0;
@@ -1503,7 +1545,9 @@ function updatePlayerName(player, val) {
       clearBtn.classList.remove('hidden');
 
       container.innerHTML = App.matchHistory.map(m => {
+        const isDraw = m.winner === 'draw';
         const isP1 = m.winner === 'p1';
+        const isP2 = !isDraw && !isP1; // oude wedstrijden met winner 'p2' blijven zo werken
         const mode = m.gameMode || 'Vrij Spel';
 
         // Styling van de Type Spel chip
@@ -1570,16 +1614,19 @@ function updatePlayerName(player, val) {
                 ${isP1 ? '<span class="text-[9px] bg-primary/20 text-primary font-bold px-1.5 py-0.5 rounded uppercase">Win</span>' : ''}
               </div>
 
-              <div class="font-mono text-headline-md font-bold px-3">
-                <span class="${isP1 ? 'text-primary' : 'text-secondary'}">${m.p1.score}</span>
-                <span class="text-on-surface-variant px-1">-</span>
-                <span class="${!isP1 ? 'text-primary' : 'text-secondary'}">${m.p2.score}</span>
+              <div class="flex flex-col items-center px-3">
+                <div class="font-mono text-headline-md font-bold">
+                  <span class="${isP1 ? 'text-primary' : isDraw ? 'text-on-surface' : 'text-secondary'}">${m.p1.score}</span>
+                  <span class="text-on-surface-variant px-1">-</span>
+                  <span class="${isP2 ? 'text-primary' : isDraw ? 'text-on-surface' : 'text-secondary'}">${m.p2.score}</span>
+                </div>
+                ${isDraw ? '<span class="text-[9px] bg-surface-variant text-on-surface-variant font-bold px-1.5 py-0.5 rounded uppercase">Gelijkspel</span>' : ''}
               </div>
 
               <div class="flex items-center justify-end gap-2 flex-1">
-                ${!isP1 ? '<span class="text-[9px] bg-primary/20 text-primary font-bold px-1.5 py-0.5 rounded uppercase">Win</span>' : ''}
-                <span class="font-semibold text-body-sm ${!isP1 ? 'text-primary' : 'text-on-surface'}">${m.p2.name}</span>
-                <span class="w-2.5 h-2.5 rounded-full ${!isP1 ? 'bg-primary animate-pulse' : 'bg-surface-variant'}"></span>
+                ${isP2 ? '<span class="text-[9px] bg-primary/20 text-primary font-bold px-1.5 py-0.5 rounded uppercase">Win</span>' : ''}
+                <span class="font-semibold text-body-sm ${isP2 ? 'text-primary' : 'text-on-surface'}">${m.p2.name}</span>
+                <span class="w-2.5 h-2.5 rounded-full ${isP2 ? 'bg-primary animate-pulse' : 'bg-surface-variant'}"></span>
               </div>
             </div>
 
