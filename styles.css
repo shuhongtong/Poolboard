@@ -1,0 +1,104 @@
+@layer base {
+  html, body {
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overscroll-behavior: none;
+    min-height: max(884px, 100dvh);
+    background-color: #121415;
+    color: #e2e2e3;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Exact Design Spec Typography */
+.font-display-score-mobile, .text-display-score-mobile {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.text-headline-md, .font-headline-md {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.text-headline-lg, .font-headline-lg {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+.text-label-sm, .font-label-sm {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+}
+.text-body-sm, .font-body-sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+/* Number Pop Animation */
+.score-pop {
+  animation: pop 0.16s ease-out;
+}
+@keyframes pop {
+  0% { transform: scale(0.92); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* Confetti Burst */
+.confetti-piece {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 2px;
+  animation: drop 1.6s ease-out forwards;
+}
+@keyframes drop {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(220px) rotate(420deg) scale(0.4); opacity: 0; }
+}
+
+/* Share Toast Notification */
+.share-toast {
+  position: fixed;
+  bottom: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333536;
+  color: #e2e2e3;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border: 1px solid rgba(166, 138, 140, 0.3);
+}
+.share-toast.show {
+  opacity: 1;
+}
