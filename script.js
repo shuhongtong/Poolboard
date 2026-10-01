@@ -888,9 +888,9 @@ function shareMatch(matchId) {
 
   let shareText;
   if (isDraw) {
-    shareText = `🎱 Pool Uitslag: Gelijkspel tussen ${winnerName} en ${loserName} met ${winnerScore} - ${loserScore}! op Datum: ${dateStr} om Tijd: ${timeStr}.${seriesInfo}`;
+    shareText = `🎱 Pool Uitslag: Gelijkspel tussen ${winnerName} en ${loserName} met ${winnerScore} - ${loserScore}! op Datum: ${dateStr} om ${timeStr}.${seriesInfo}`;
   } else {
-    shareText = `🎱 Pool Uitslag: ${winnerName} wint van ${loserName} met ${winnerScore} - ${loserScore}! op Datum: ${dateStr} om Tijd: ${timeStr}.${seriesInfo}`;
+    shareText = `🎱 Pool Uitslag: ${winnerName} wint van ${loserName} met ${winnerScore} - ${loserScore}! op Datum: ${dateStr} om ${timeStr}.${seriesInfo}`;
   }
 
   if (navigator.share) {
